@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-25c{1} : %m%n" />
+        </Console>
+
+        <RollingFile name="ErrorLogFiles" fileName="./logs/1-error-tourguide.log" filePattern="./logs/$${date:yyyy-MM}/1-error/%d{yyyyMMdd}-%i-error-tourguide.log.gz">
+			<LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="WarnLogFiles" fileName="./logs/2-warn-tourguide.log" filePattern="./logs/$${date:yyyy-MM}/2-warn/%d{yyyyMMdd}-%i-warn-tourguide.log.gz">
+			<LevelRangeFilter minLevel="WARN" maxLevel="WARN" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="InfoLogFiles" fileName="./logs/3-info-tourguide.log" filePattern="./logs/$${date:yyyy-MM}/3-info/%d{yyyyMMdd}-%i-info-tourguide.log.gz">
+			<LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="DebugLogFiles" fileName="./logs/4-debug-tourguide.log" filePattern="./logs/$${date:yyyy-MM}/4-debug/%d{yyyyMMdd}-%i-debug-tourguide.log.gz">
+			<LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="TraceLogFiles" fileName="./logs/5-trace-tourguide.log" filePattern="./logs/$${date:yyyy-MM}/5-trace/%d{yyyyMMdd}-%i-trace-tourguide.log.gz">
+			<LevelRangeFilter minLevel="TRACE" maxLevel="TRACE" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="CompleteLogFiles" fileName="./logs/tourguide.log" filePattern="./logs/$${date:yyyy-MM}/complete/%d{yyyyMMdd}-%i-tourguide.log.gz">
+			<PatternLayout>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %-20c{1} : %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root>
+            <AppenderRef ref="ErrorLogFiles" />
+            <AppenderRef ref="WarnLogFiles" />
+            <AppenderRef ref="InfoLogFiles" />
+            <AppenderRef ref="DebugLogFiles" />
+            <AppenderRef ref="TraceLogFiles" />
+            <AppenderRef ref="CompleteLogFiles" level="trace" />
+            <AppenderRef ref="Console" level="debug" />
+        </Root>
+        
+        <Logger name="com.openclassrooms" level="trace"></Logger>
+    </Loggers>
+</Configuration>
