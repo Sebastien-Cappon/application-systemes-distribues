@@ -12,6 +12,13 @@ import org.slf4j.LoggerFactory;
 import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.user.User;
 
+/**
+ * A class that manages a tracker that follows users to record their positions
+ * and update rewards every N minutes.
+ * 
+ * @author [NPC]TourGuide BackEnd Team
+ * @version 1.0
+ */
 public class Tracker extends Thread {
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
@@ -26,13 +33,20 @@ public class Tracker extends Thread {
 	}
 
 	/**
-	 * Assures to shut down the Tracker thread
+	 * A method that assures to shut down the Tracker thread.
+	 * 
+	 * @return <code>void</code>.
 	 */
 	public void stopTracking() {
 		stop = true;
 		executorService.shutdownNow();
 	}
 
+	/**
+	 * An override method that run the tracker and logs its statuses.
+	 * 
+	 * @return <code>void</code>.
+	 */
 	@Override
 	public void run() {
 		StopWatch stopWatch = new StopWatch();
@@ -56,6 +70,5 @@ public class Tracker extends Thread {
 				break;
 			}
 		}
-
 	}
 }

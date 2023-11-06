@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide;
+package com.openclassrooms.tourguide.performance;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
