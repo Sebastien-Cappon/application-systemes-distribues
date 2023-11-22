@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.service;
+package com.openclassrooms.tourguide.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,9 +9,11 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.openclassrooms.tourguide.helper.InternalTestHelper;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
+import com.openclassrooms.tourguide.constant.InternalUsersQuantity;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.model.Reward;
+import com.openclassrooms.tourguide.service.RewardsService;
+import com.openclassrooms.tourguide.service.TourGuideService;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -25,14 +27,14 @@ public class TestRewardsService {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
-		InternalTestHelper.setInternalUserNumber(0);
+		InternalUsersQuantity.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		tourGuideService.trackUserLocation(user);
-		List<UserReward> userRewards = user.getUserRewards();
+		List<Reward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
 	}
@@ -45,21 +47,20 @@ public class TestRewardsService {
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}
 
-	//@Disabled // Needs fixed - can throw ConcurrentModificationException
 	@Test
 	public void nearAllAttractions() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
+		GpsUtil gpsUtil = new GpsUtil();																			System.out.println("J1");
+		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());							System.out.println("J2");
+		rewardsService.setProximityBuffer(Integer.MAX_VALUE);														System.out.println("J3");
 
-		InternalTestHelper.setInternalUserNumber(1);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+		InternalUsersQuantity.setInternalUserNumber(1);																System.out.println("J4");
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);							System.out.println("J5");
 
-		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
-		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
-		tourGuideService.tracker.stopTracking();
+		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));										System.out.println("J6");
+		List<Reward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));			System.out.println("J7");
+		tourGuideService.tracker.stopTracking();																	System.out.println("J8");
 
-		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
+		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());											System.out.println("J9");
 	}
 
 }

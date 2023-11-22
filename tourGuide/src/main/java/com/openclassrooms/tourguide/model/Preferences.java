@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.user;
+package com.openclassrooms.tourguide.model;
 
 /**
  * A model class which creates the POJO (Plain Old Java Object)
@@ -7,23 +7,23 @@ package com.openclassrooms.tourguide.user;
  * @author [NPC]TourGuide BackEnd Team
  * @version 1.0
  */
-public class UserPreferences {
-
+public class Preferences {
 	private int attractionProximity = Integer.MAX_VALUE;
 	private int tripDuration = 1;
 	private int ticketQuantity = 1;
 	private int numberOfAdults = 1;
 	private int numberOfChildren = 0;
 
-	public UserPreferences() {
-	}
+	public Preferences() {
 
-	public void setAttractionProximity(int attractionProximity) {
-		this.attractionProximity = attractionProximity;
 	}
 
 	public int getAttractionProximity() {
 		return attractionProximity;
+	}
+
+	public void setAttractionProximity(int attractionProximity) {
+		this.attractionProximity = attractionProximity;
 	}
 
 	public int getTripDuration() {
@@ -56,5 +56,11 @@ public class UserPreferences {
 
 	public void setNumberOfChildren(int numberOfChildren) {
 		this.numberOfChildren = numberOfChildren;
+	}
+
+	@Override
+	public String toString() {
+		return "[" + attractionProximity + "]" + "[" + tripDuration + "]" + "[" + ticketQuantity + "]" + "["
+				+ numberOfAdults + "]" + "[" + numberOfChildren + "]";
 	}
 }

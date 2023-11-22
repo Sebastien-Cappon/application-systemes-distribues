@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.tracker;
+package com.openclassrooms.tourguide.util;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -9,8 +9,8 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.TourGuideService;
-import com.openclassrooms.tourguide.user.User;
 
 /**
  * A class that manages a tracker that follows users to record their positions
@@ -19,27 +19,18 @@ import com.openclassrooms.tourguide.user.User;
  * @author [NPC]TourGuide BackEnd Team
  * @version 1.0
  */
-public class Tracker extends Thread {
-	private Logger logger = LoggerFactory.getLogger(Tracker.class);
+public class UsersTracker extends Thread {
+	private static final Logger logger = LoggerFactory.getLogger(UsersTracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
+	
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private final TourGuideService tourGuideService;
+	
 	private boolean stop = false;
 
-	public Tracker(TourGuideService tourGuideService) {
+	public UsersTracker(TourGuideService tourGuideService) {
 		this.tourGuideService = tourGuideService;
-
 		executorService.submit(this);
-	}
-
-	/**
-	 * A method that assures to shut down the Tracker thread.
-	 * 
-	 * @return <code>void</code>.
-	 */
-	public void stopTracking() {
-		stop = true;
-		executorService.shutdownNow();
 	}
 
 	/**
@@ -70,5 +61,15 @@ public class Tracker extends Thread {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * A method that assures to shut down the Tracker thread.
+	 * 
+	 * @return <code>void</code>.
+	 */
+	public void stopTracking() {
+		stop = true;
+		executorService.shutdownNow();
 	}
 }

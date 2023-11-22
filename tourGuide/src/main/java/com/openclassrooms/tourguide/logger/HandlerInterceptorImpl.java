@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 public class HandlerInterceptorImpl implements HandlerInterceptor {
-
 	private static final Logger logger = LoggerFactory.getLogger(HandlerInterceptorImpl.class);
 
 	/**

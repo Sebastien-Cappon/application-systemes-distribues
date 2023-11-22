@@ -3,17 +3,17 @@ package com.openclassrooms.tourguide.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.openclassrooms.tourguide.dto.AttractionNearUserDto;
+import com.openclassrooms.tourguide.model.Reward;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.service.ITourGuideService;
+
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-
-import com.openclassrooms.tourguide.service.TourGuideService;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
-
 import tripPricer.Provider;
 
 /**
@@ -28,7 +28,7 @@ import tripPricer.Provider;
 public class TourGuideController {
 
 	@Autowired
-	TourGuideService tourGuideService;
+	private ITourGuideService iTourGuideService;
 
 	/**
 	 * A <code>RequestMapping</code> method on the <code>/</code> URI with an user
@@ -36,11 +36,16 @@ public class TourGuideController {
 	 * 
 	 * @return A <code>String</code>.
 	 */
-	@RequestMapping("/")
-	public String index() {
+	@GetMapping("/")
+	public String getHomePage() {
 		return "Greetings from TourGuide!";
 	}
 
+	@GetMapping("/user")
+	public User getUser(@RequestParam String userName) {
+		return iTourGuideService.getUser(userName);
+	}
+	
 	/**
 	 * A <code>RequestMapping</code> method on the <code>/getLocation</code> URI
 	 * with an user name as <code>RequestParam</code>. It calls the
@@ -52,26 +57,27 @@ public class TourGuideController {
 	 * 
 	 * @return A <code>VistedLocation</code>.
 	 */
-	@RequestMapping("/getLocation")
-	public VisitedLocation getLocation(@RequestParam String userName) {
-		return tourGuideService.getUserLocation(getUser(userName));
+	@GetMapping("/getLocation")
+	public VisitedLocation getUserLocation(@RequestParam String userName) {
+		return iTourGuideService.getUserLocation(iTourGuideService.getUser(userName));
 	}
 	
 	/**
-	 * Get the closest five tourist attractions to the user - no matter how
-	 * far away they are. Return a new JSON object that contains:
-	 * - Name of Tourist attraction,
-	 * - Tourist attractions lat/long,
-	 * - The user's location lat/long
-	 * - The distance in miles between the user's location and each of the attractions.
-	 * - The reward points for visiting each Attraction.
-	 * Note: Attraction reward points can be gathered from RewardsCentral
+	 * Get the closest five tourist attractions to the user no matter how far away
+	 * they are. It returns a new JSON object that contains the name and the lat/long of the
+	 *         tourist attraction, the user's location lat/long, the distance in
+	 *         miles between the user's location and each of the attractions. and
+	 *         the reward points for visiting each Attraction.
+	 * 
+	 * @return A list of <code>AttractionNearUserDto</code>.
 	 */
-	// TODO: Change this method to no longer return a List of Attractions.
-	@RequestMapping("/getNearbyAttractions")
-	public List<Attraction> getNearbyAttractions(@RequestParam String userName) {
-		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
-		return tourGuideService.getNearByAttractions(visitedLocation);
+	@GetMapping("/getNearbyAttractions")
+	public List<AttractionNearUserDto> getNearbyAttractions(@RequestParam String userName) {
+		User user = iTourGuideService.getUser(userName);
+		VisitedLocation visitedLocation = iTourGuideService.getUserLocation(user);
+		List<Attraction> nearbyAttraction = iTourGuideService.getNearByAttractions(visitedLocation);
+		
+		return iTourGuideService.formatNearbyAttractions(user, visitedLocation, nearbyAttraction);
 	}
 
 	/**
@@ -83,9 +89,9 @@ public class TourGuideController {
 	 * 
 	 * @return A <code>VistedLocation</code>.
 	 */
-	@RequestMapping("/getRewards")
-	public List<UserReward> getRewards(@RequestParam String userName) {
-		return tourGuideService.getUserRewards(getUser(userName));
+	@GetMapping("/getRewards")
+	public List<Reward> getUserRewards(@RequestParam String userName) {
+		return iTourGuideService.getUserRewards(iTourGuideService.getUser(userName));
 	}
 
 	/**
@@ -99,21 +105,8 @@ public class TourGuideController {
 	 * 
 	 * @return A <code>VistedLocation</code>.
 	 */
-	@RequestMapping("/getTripDeals")
+	@GetMapping("/getTripDeals")
 	public List<Provider> getTripDeals(@RequestParam String userName) {
-		return tourGuideService.getTripDeals(getUser(userName));
-	}
-
-	/**
-	 * A with an user name as parameter. It calls the <code>tourGuideService</code>
-	 * methods <code>getUser(String userName)</code> and returns a <code>User</code>
-	 * whose name is the one passed in parameter.
-	 * 
-	 * @singularity Provider came from TripPricer external module.
-	 * 
-	 * @return A <code>VistedLocation</code>.
-	 */
-	private User getUser(String userName) {
-		return tourGuideService.getUser(userName);
+		return iTourGuideService.getTripDeals(iTourGuideService.getUser(userName));
 	}
 }
