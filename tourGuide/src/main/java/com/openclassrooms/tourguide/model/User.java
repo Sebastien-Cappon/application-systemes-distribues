@@ -108,9 +108,11 @@ public class User {
 	}
 
 	public void addUserReward(Reward userReward) {
-		if (this.getUserRewards().stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction)).count() == 0) {
-			this.getUserRewards().add(userReward);
-		}
+		List<Reward> userRewardTempList = new ArrayList<>(getUserRewards());
+		
+		if (userRewardTempList.stream().filter(r -> r.attraction.attractionName.equals(userReward.attraction.attractionName)).count() == 0) {
+			userRewards.add(userReward);
+		}	
 	}
 
 	public void clearVisitedLocations() {

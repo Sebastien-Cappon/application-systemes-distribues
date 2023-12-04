@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import com.openclassrooms.tourguide.service.TourGuideService;
  * @version 1.0
  */
 public class UsersTracker extends Thread {
+	public static final AtomicBoolean SLEEPINGTRACKER = new AtomicBoolean();
 	private static final Logger logger = LoggerFactory.getLogger(UsersTracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	
@@ -40,6 +42,7 @@ public class UsersTracker extends Thread {
 	 */
 	@Override
 	public void run() {
+		SLEEPINGTRACKER.set(false);
 		StopWatch stopWatch = new StopWatch();
 		while (true) {
 			if (Thread.currentThread().isInterrupted() || stop) {
@@ -55,6 +58,7 @@ public class UsersTracker extends Thread {
 			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 			stopWatch.reset();
 			try {
+				SLEEPINGTRACKER.set(true);
 				logger.debug("Tracker sleeping");
 				TimeUnit.SECONDS.sleep(trackingPollingInterval);
 			} catch (InterruptedException e) {

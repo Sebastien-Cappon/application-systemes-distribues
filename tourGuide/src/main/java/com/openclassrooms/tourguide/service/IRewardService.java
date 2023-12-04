@@ -10,5 +10,5 @@ public interface IRewardService {
 	public double getDistance(Location loc1, Location loc2);
 
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location);
-	public void calculateRewards(User user);
+	public User calculateRewards(User user);
 }

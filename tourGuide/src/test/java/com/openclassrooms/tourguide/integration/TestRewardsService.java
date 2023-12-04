@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 import com.openclassrooms.tourguide.constant.InternalUsersQuantity;
-import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.Reward;
+import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
 
@@ -29,13 +31,17 @@ public class TestRewardsService {
 
 		InternalUsersQuantity.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		
 		Attraction attraction = gpsUtil.getAttractions().get(0);
+		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		tourGuideService.trackUserLocation(user);
+		
+		Awaitility.await().during(1100, TimeUnit.MILLISECONDS).untilTrue(tourGuideService.tracker.SLEEPINGTRACKER);
+		
 		List<Reward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
+		
 		assertTrue(userRewards.size() == 1);
 	}
 
@@ -49,18 +55,22 @@ public class TestRewardsService {
 
 	@Test
 	public void nearAllAttractions() {
-		GpsUtil gpsUtil = new GpsUtil();																			System.out.println("J1");
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());							System.out.println("J2");
-		rewardsService.setProximityBuffer(Integer.MAX_VALUE);														System.out.println("J3");
+		GpsUtil gpsUtil = new GpsUtil();
+		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
-		InternalUsersQuantity.setInternalUserNumber(1);																System.out.println("J4");
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);							System.out.println("J5");
+		InternalUsersQuantity.setInternalUserNumber(1);
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
-		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));										System.out.println("J6");
-		List<Reward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));			System.out.println("J7");
-		tourGuideService.tracker.stopTracking();																	System.out.println("J8");
+		User user = tourGuideService.getAllUsers().get(0);
+		user.clearVisitedLocations();
+		Awaitility.await().during(1100, TimeUnit.MILLISECONDS).untilTrue(tourGuideService.tracker.SLEEPINGTRACKER);
+		
+		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
+		List<Reward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
+		tourGuideService.tracker.stopTracking();
 
-		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());											System.out.println("J9");
+		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
 	}
 
 }

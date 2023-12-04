@@ -2,6 +2,11 @@ package com.openclassrooms.tourguide.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
@@ -23,6 +28,8 @@ import rewardCentral.RewardCentral;
  */
 @Service
 public class RewardsService implements IRewardService {
+	ExecutorService executorService = Executors.newFixedThreadPool(50);
+	
 	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
 	private final GpsUtil gpsUtil;
@@ -85,26 +92,66 @@ public class RewardsService implements IRewardService {
 	 * @return <code>void</code>.
 	 */
 	@Override
-	public void calculateRewards(User user) {
+	public User calculateRewards(User user) {
 		List<Attraction> attractions = gpsUtil.getAttractions();
-		List<VisitedLocation> userVisitedLocations = user.getVisitedLocations();
-		List<VisitedLocation> userVisitedLocationList = new ArrayList<>(userVisitedLocations);
-		List<Reward> userRewardList = new ArrayList<>();
-		
-		for (VisitedLocation visitedLocation : userVisitedLocationList) {
+		CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(user.getVisitedLocations());
+
+		for (VisitedLocation visitedLocation : userVisitedLocations) {
 			for (Attraction attraction : attractions) {
-				if (userRewardList.stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+				if (user.getUserRewards().stream().filter(reward -> reward.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
 					if (nearAttraction(visitedLocation, attraction)) {
-						userRewardList.add(new Reward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+						user.addUserReward(new Reward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
 		}
 		
-		// BUG WORKAROUND ?
-		if(user.getUserRewards().isEmpty()) {
-			user.getUserRewards().addAll(userRewardList);
+		return user;
+	}
+	
+	public List<User> calculateRewardsForAll(List<User> users) {
+		List<User> usersList = new ArrayList<>();
+			
+		try {
+			for (User user : users) {
+				executorService.execute(() -> {
+					usersList.add(calculateRewards(user));
+				});
+			}
+			executorService.shutdown();
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			System.out.println("All thread finished !");	
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+		
+		return usersList;
+	}
+	
+	public void setUserRewards(VisitedLocation visitedLocation, Attraction attraction, User user) {
+		CompletableFuture.supplyAsync(() -> {
+			return getRewardPoints(attraction, user);
+		}, executorService).thenAccept(rewardPoints -> {
+			user.addUserReward(new Reward(visitedLocation, attraction, rewardPoints));
+		});
+	}
+	
+	public void getAttractionList_fromGpsUtil(User user) {
+		CompletableFuture.supplyAsync(() -> {
+			return gpsUtil.getAttractions();
+		}, executorService).thenAccept(attractions -> {
+			CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(user.getVisitedLocations());
+
+			for (VisitedLocation visitedLocation : userVisitedLocations) {
+				for (Attraction attraction : attractions) {
+					if (user.getUserRewards().stream().filter(reward -> reward.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+						if (nearAttraction(visitedLocation, attraction)) {
+							setUserRewards(visitedLocation, attraction, user);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	/**

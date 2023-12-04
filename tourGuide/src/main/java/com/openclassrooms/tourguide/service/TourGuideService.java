@@ -1,10 +1,15 @@
 package com.openclassrooms.tourguide.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -34,6 +39,8 @@ import tripPricer.TripPricer;
  */
 @Service
 public class TourGuideService implements ITourGuideService {
+	ExecutorService executorService = Executors.newFixedThreadPool(50);
+	
 	private static final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private static final String tripPricerApiKey = "test-server-api-key";
 	
@@ -212,6 +219,27 @@ public class TourGuideService implements ITourGuideService {
 		rewardsService.calculateRewards(user);
 		
 		return visitedLocation;
+	}
+
+	public Map<UUID, VisitedLocation> trackAllUsersLocation(List<User> users) {
+		Map<UUID, VisitedLocation> vl = new HashMap<>();
+
+		try {
+			for (User user : users) {
+				executorService.execute(() -> {
+					VisitedLocation visitedLocation = trackUserLocation(user);
+					vl.put(user.getUserId(), visitedLocation);
+				});
+			}
+			executorService.shutdown();
+			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			System.out.println("All thread finished !");
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return vl;
 	}
 
 	/**
