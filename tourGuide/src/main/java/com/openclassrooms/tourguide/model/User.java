@@ -10,27 +10,35 @@ import tripPricer.Provider;
 
 /**
  * A model class which creates the POJO (Plain Old Java Object)
- * <code>User</code>. It contains getters and setters.
- *
- * @author [NPC]TourGuide BackEnd Team
- * @version 1.0
+ * <code>User</code>. It contains getters and setters, as well as an override
+ * <code>toSring()</code> method for display in the console.
+ * 
+ * @singularity <code>addUserReward</code> method has been modified to manage
+ *              the multithreading induced by the <code>getAttraction()</code>
+ *              method of the <code>GpsUtil</code> module, without creating a
+ *              list of temporary rewards, when it is called in the
+ *              <code>calculateRewards()</code> method of the
+ *              <code>RewardService</code> class.
+ * 
+ * @author [NPC]TourGuide BackEnd Team, Sébastien Cappon
+ * @version 1.1
  */
 public class User {
 	private final UUID userId;
-	private final String userName;
+	private final String name;
 
 	private String phoneNumber;
 	private String emailAddress;
 	private Date latestLocationTimestamp;
 
-	private List<VisitedLocation> visitedLocations = new ArrayList<>();
-	private List<Reward> userRewards = new ArrayList<>();
+	private List<VisitedLocation> visitedLocationList = new ArrayList<>();
+	private List<Reward> userRewardList = new ArrayList<>();
 	private Preferences userPreferences = new Preferences();
-	private List<Provider> tripDeals = new ArrayList<>();
+	private List<Provider> tripDealList = new ArrayList<>();
 
-	public User(UUID userId, String userName, String phoneNumber, String emailAddress) {
+	public User(UUID userId, String name, String phoneNumber, String emailAddress) {
 		this.userId = userId;
-		this.userName = userName;
+		this.name = name;
 		this.phoneNumber = phoneNumber;
 		this.emailAddress = emailAddress;
 	}
@@ -39,8 +47,8 @@ public class User {
 		return userId;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getName() {
+		return name;
 	}
 
 	public String getPhoneNumber() {
@@ -67,20 +75,20 @@ public class User {
 		this.latestLocationTimestamp = latestLocationTimestamp;
 	}
 
-	public List<VisitedLocation> getVisitedLocations() {
-		return visitedLocations;
+	public List<VisitedLocation> getVisitedLocationList() {
+		return visitedLocationList;
 	}
 
-	public void setVisitedLocations(List<VisitedLocation> visitedLocations) {
-		this.visitedLocations = visitedLocations;
+	public void setVisitedLocationList(List<VisitedLocation> visitedLocationList) {
+		this.visitedLocationList = visitedLocationList;
 	}
 
-	public List<Reward> getUserRewards() {
-		return userRewards;
+	public List<Reward> getUserRewardList() {
+		return userRewardList;
 	}
 
-	public void setUserRewards(List<Reward> userRewards) {
-		this.userRewards = userRewards;
+	public void setUserRewardList(List<Reward> userRewardList) {
+		this.userRewardList = userRewardList;
 	}
 
 	public Preferences getUserPreferences() {
@@ -91,38 +99,34 @@ public class User {
 		this.userPreferences = userPreferences;
 	}
 
-	public List<Provider> getTripDeals() {
-		return tripDeals;
+	public List<Provider> getTripDealList() {
+		return tripDealList;
 	}
 
-	public void setTripDeals(List<Provider> tripDeals) {
-		this.tripDeals = tripDeals;
+	public void setTripDealList(List<Provider> tripDealList) {
+		this.tripDealList = tripDealList;
 	}
 
 	public VisitedLocation getLastVisitedLocation() {
-		return this.getVisitedLocations().get(this.getVisitedLocations().size() - 1);
+		return this.getVisitedLocationList().get(this.getVisitedLocationList().size() - 1);
 	}
 
-	public void addToVisitedLocations(VisitedLocation visitedLocation) {
-		this.getVisitedLocations().add(visitedLocation);
+	public void addVisitedLocation(VisitedLocation visitedLocation) {
+		this.getVisitedLocationList().add(visitedLocation);
 	}
 
-	public void addUserReward(Reward userReward) {
-		List<Reward> userRewardTempList = new ArrayList<>(getUserRewards());
-		
-		if (userRewardTempList.stream().filter(r -> r.attraction.attractionName.equals(userReward.attraction.attractionName)).count() == 0) {
-			userRewards.add(userReward);
-		}	
-	}
+	public void addReward(Reward newReward) {
+		List<Reward> userRewardTempList = new ArrayList<>(getUserRewardList());
 
-	public void clearVisitedLocations() {
-		this.getVisitedLocations().clear();
+		if (userRewardTempList.stream().filter(reward -> reward.attraction.attractionName.equals(newReward.attraction.attractionName)).count() == 0) {
+			userRewardList.add(newReward);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return "[" + userId + "]" + "[" + userName + "]" + "[" + phoneNumber + "]" + "[" + emailAddress + "]" + "["
-				+ latestLocationTimestamp + "]" + "[" + visitedLocations + "]" + "[" + userRewards + "]" + "["
-				+ userPreferences + "]" + "[" + tripDeals + "]";
+		return "[" + userId + "]" + "[" + name + "]" + "[" + phoneNumber + "]" + "[" + emailAddress + "]" + "["
+				+ latestLocationTimestamp + "]" + "[" + visitedLocationList + "]" + "[" + userRewardList + "]" + "["
+				+ userPreferences + "]" + "[" + tripDealList + "]";
 	}
 }

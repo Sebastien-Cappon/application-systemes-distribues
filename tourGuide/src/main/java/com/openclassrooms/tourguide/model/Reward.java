@@ -5,15 +5,15 @@ import gpsUtil.location.VisitedLocation;
 
 /**
  * A model class which creates the POJO (Plain Old Java Object)
- * <code>UserReward</code>. It contains getters and setters.
+ * <code>UserReward</code>. It contains getters and setters, as well as
+ * an override <code>toSring()</code> method for display in the console.
  *
- * @author [NPC]TourGuide BackEnd Team
- * @version 1.0
+ * @author [NPC]TourGuide BackEnd Team, Sébastien Cappon
+ * @version 1.1
  */
 public class Reward {
 	public final VisitedLocation visitedLocation;
 	public final Attraction attraction;
-
 	private int rewardPoints;
 
 	public Reward(VisitedLocation visitedLocation, Attraction attraction, int rewardPoints) {

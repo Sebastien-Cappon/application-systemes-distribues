@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.tourguide.dto.AttractionNearUserDto;
@@ -31,42 +32,51 @@ import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 /**
- * A service class which performs the business processes ??? This service used
- * by ??? only.
+ * A service class which performs the business processes relating to the user
+ * location and reward system.
  * 
- * @author [NPC]TourGuide BackEnd Team
- * @version 1.0
+ * @author [NPC]TourGuide BackEnd Team, Sébastien Cappon
+ * @version 1.1
  */
 @Service
 public class TourGuideService implements ITourGuideService {
-	ExecutorService executorService = Executors.newFixedThreadPool(50);
 	
+	@Autowired
+	private IRewardService iRewardService;
+	
+	private ExecutorService executorService = Executors.newFixedThreadPool(50);
+
 	private static final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private static final String tripPricerApiKey = "test-server-api-key";
-	
+
 	private final GpsUtil gpsUtil;
-	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
-	private final InternalUsersInitializer internalUsers = new InternalUsersInitializer();
+	private final InternalUsersInitializer internalUserList = new InternalUsersInitializer();
+	
+	private Map<String, User> internalUserMap;
+	private boolean testMode = true;
+	
 	public final UsersTracker tracker;
 
-	private boolean testMode = true;
-	private Map<String, User> internalUserMap;
-
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
+	public TourGuideService(GpsUtil gpsUtil, IRewardService iRewardService) {
 		this.gpsUtil = gpsUtil;
-		this.rewardsService = rewardsService;
+		this.iRewardService = iRewardService;
 
 		Locale.setDefault(Locale.US);
 
 		if (testMode) {
 			logger.info("TestMode enabled.");
 			logger.debug("Initializing users.");
-			internalUserMap = internalUsers.initializeInternalUsers();
+			internalUserMap = internalUserList.initializeInternalUsers();
 			logger.debug("Finished initializing users.");
 		}
 		tracker = new UsersTracker(this);
 		addShutDownHook();
+	}
+
+	@Override
+	public UsersTracker getTracker() {
+		return tracker;
 	}
 
 	/**
@@ -79,21 +89,22 @@ public class TourGuideService implements ITourGuideService {
 	 * @return A <code>User</code>.
 	 */
 	@Override
-	public List<User> getAllUsers() {
+	public List<User> getUserList() {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
 	/**
 	 * A <code>GET</code> method that returns a <code>User</code> whose username is
-	 * passed as parameter after calling the getter of the <code>Map<String, User></code>
+	 * passed as parameter after calling the getter of the
+	 * <code>Map<String, User></code>
 	 * 
 	 * @warning <code>internalUserMap</code> is initialized below.
 	 * 
 	 * @return A <code>User</code>.
 	 */
 	@Override
-	public User getUser(String userName) {
-		return internalUserMap.get(userName);
+	public User getUserByName(String username) {
+		return internalUserMap.get(username);
 	}
 
 	/**
@@ -106,51 +117,33 @@ public class TourGuideService implements ITourGuideService {
 	 */
 	@Override
 	public VisitedLocation getUserLocation(User user) {
-		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation() : trackUserLocation(user);
+		VisitedLocation visitedLocation = (user.getVisitedLocationList().size() > 0) ? user.getLastVisitedLocation()
+				: trackUserLocation(user);
 		return visitedLocation;
 	}
 
 	/**
 	 * A <code>GET</code> method that returns an <code>Attraction</code> list of all
-	 * attractions near the <code>VisitedLocation</code> passed as parameter
+	 * the five nearest attractions to <code>VisitedLocation</code> passed as
+	 * parameter
 	 * 
 	 * @return A <code>Attraction</code> list.
 	 */
 	@Override
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
+	public List<Attraction> getNearbyAttractionList(VisitedLocation visitedLocation) {
 		List<Attraction> nearbyAttractions = new ArrayList<>();
-		TreeMap<Double, Attraction> attractionsOrderByDistance = new TreeMap<>(); 
-		
-		for(Attraction attraction : gpsUtil.getAttractions()) {
-			double distanceBetween = rewardsService.getDistance(visitedLocation.location, attraction);
-			attractionsOrderByDistance.put(distanceBetween, attraction);	
-		}
-		
-		for(Map.Entry<Double, Attraction> entry : attractionsOrderByDistance.entrySet()) {
-			nearbyAttractions.add(entry.getValue());
-		}
-		
-		return nearbyAttractions.stream().limit(5).collect(Collectors.toList());
-	}
-	
-	@Override
-	public List<AttractionNearUserDto> formatNearbyAttractions(User user, VisitedLocation visitedLocation, List<Attraction> nearbyAttractions) {
-		UserLocationDto userLocationDto = new UserLocationDto(visitedLocation.location.latitude, visitedLocation.location.longitude);
-		List<AttractionNearUserDto> formatedNearbyAttractions = new ArrayList<>();
-		
-		for (Attraction attraction : nearbyAttractions) {
-			NearbyAttractionDto nearbyAttractionDto = new NearbyAttractionDto(attraction.attractionName, attraction.latitude, attraction.longitude);
-			
-			AttractionNearUserDto userRelatedAttraction = new AttractionNearUserDto();
-			userRelatedAttraction.setNearbyAttraction(nearbyAttractionDto);
-			userRelatedAttraction.setUserLocation(userLocationDto);
-			userRelatedAttraction.setDistanceBetween(rewardsService.getDistance(visitedLocation.location, attraction));
-			userRelatedAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-			
-			formatedNearbyAttractions.add(userRelatedAttraction);
+		TreeMap<Double, Attraction> attractionsOrderByDistance = new TreeMap<>();
+
+		for (Attraction attraction : gpsUtil.getAttractions()) {
+			double distanceBetween = iRewardService.getDistance(visitedLocation.location, attraction);
+			attractionsOrderByDistance.put(distanceBetween, attraction);
 		}
 
-		return formatedNearbyAttractions;
+		for (Map.Entry<Double, Attraction> entry : attractionsOrderByDistance.entrySet()) {
+			nearbyAttractions.add(entry.getValue());
+		}
+
+		return nearbyAttractions.stream().limit(5).collect(Collectors.toList());
 	}
 
 	/**
@@ -161,8 +154,8 @@ public class TourGuideService implements ITourGuideService {
 	 * @return A <code>UserReward</code> list.
 	 */
 	@Override
-	public List<Reward> getUserRewards(User user) {
-		return user.getUserRewards();
+	public List<Reward> getUserRewardList(User user) {
+		return user.getUserRewardList();
 	}
 
 	/**
@@ -173,19 +166,14 @@ public class TourGuideService implements ITourGuideService {
 	 * @return A <code>Provider</code> list.
 	 */
 	@Override
-	public List<Provider> getTripDeals(User user) {
-		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
-		
-		List<Provider> providers = tripPricer.getPrice(
-				tripPricerApiKey,
-				user.getUserId(),
-				user.getUserPreferences().getNumberOfAdults(),
-				user.getUserPreferences().getNumberOfChildren(),
-				user.getUserPreferences().getTripDuration(),
-				cumulatativeRewardPoints
-			);
-		user.setTripDeals(providers);
-		
+	public List<Provider> getTripDealList(User user) {
+		int cumulatativeRewardPoints = user.getUserRewardList().stream().mapToInt(i -> i.getRewardPoints()).sum();
+
+		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
+				user.getUserPreferences().getAdultQuantity(), user.getUserPreferences().getChildQuantity(),
+				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+		user.setTripDealList(providers);
+
 		return providers;
 	}
 
@@ -200,8 +188,8 @@ public class TourGuideService implements ITourGuideService {
 	 */
 	@Override
 	public void addUser(User user) {
-		if (!internalUserMap.containsKey(user.getUserName())) {
-			internalUserMap.put(user.getUserName(), user);
+		if (!internalUserMap.containsKey(user.getName())) {
+			internalUserMap.put(user.getName(), user);
 		}
 	}
 
@@ -215,31 +203,64 @@ public class TourGuideService implements ITourGuideService {
 	@Override
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
-		
+		user.addVisitedLocation(visitedLocation);
+		iRewardService.manageUserRewardList(user);
+
 		return visitedLocation;
 	}
 
-	public Map<UUID, VisitedLocation> trackAllUsersLocation(List<User> users) {
-		Map<UUID, VisitedLocation> vl = new HashMap<>();
+	/**
+	 * A method that allows the <code>trackUserLocation()</code> method to be
+	 * executed asynchronously on a list of users passed as parameter in order to improve the
+	 * application's performance.
+	 * 
+	 * @return A <code>UUID</code>, <code>VisitedLocation</code> map.
+	 * @throws InterruptedException 
+	 */
+	public Map<UUID, VisitedLocation> trackEachUserLocation(List<User> users) throws InterruptedException {
+		Map<UUID, VisitedLocation> visitedLocationMap = new HashMap<>();
 
-		try {
-			for (User user : users) {
-				executorService.execute(() -> {
-					VisitedLocation visitedLocation = trackUserLocation(user);
-					vl.put(user.getUserId(), visitedLocation);
-				});
-			}
-			executorService.shutdown();
-			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-			System.out.println("All thread finished !");
-			
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		for (User user : users) {
+			executorService.execute(() -> {
+				VisitedLocation visitedLocation = trackUserLocation(user);
+				visitedLocationMap.put(user.getUserId(), visitedLocation);
+			});
 		}
-		
-		return vl;
+		executorService.shutdown();
+		executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+		return visitedLocationMap;
+	}
+	
+	/**
+	 * A method that formats the attractions in a list of attractions passed in
+	 * parameter so that it returns the name, latitude and longitude of each
+	 * attraction, as well as the user's position, the distance between the two and
+	 * the points that the attraction concerned could bring back.
+	 * 
+	 * @return A <code>Attraction</code> list.
+	 */
+	@Override
+	public List<AttractionNearUserDto> formatNearbyAttractionList(User user, VisitedLocation visitedLocation, List<Attraction> nearbyAttractions) {
+		UserLocationDto userLocationDto = new UserLocationDto(visitedLocation.location.latitude, visitedLocation.location.longitude);
+		List<AttractionNearUserDto> formatedNearbyAttractions = new ArrayList<>();
+
+		for (Attraction attraction : nearbyAttractions) {
+			NearbyAttractionDto nearbyAttractionDto = new NearbyAttractionDto(
+					attraction.attractionName,
+					attraction.latitude,
+					attraction.longitude
+				);
+			AttractionNearUserDto userRelatedAttraction = new AttractionNearUserDto(
+					nearbyAttractionDto,
+					userLocationDto,
+					iRewardService.getDistance(visitedLocation.location, attraction),
+					iRewardService.getRewardPoints(attraction, user)
+				);
+			formatedNearbyAttractions.add(userRelatedAttraction);
+		}
+
+		return formatedNearbyAttractions;
 	}
 
 	/**
@@ -254,4 +275,7 @@ public class TourGuideService implements ITourGuideService {
 			}
 		});
 	}
+
+
+	
 }

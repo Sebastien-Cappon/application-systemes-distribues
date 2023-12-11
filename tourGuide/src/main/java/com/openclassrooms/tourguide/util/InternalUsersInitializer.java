@@ -18,9 +18,16 @@ import com.openclassrooms.tourguide.model.User;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 
+/**
+ * A class that temporarily manages a set of data internally, while waiting for
+ * a DBMS to be implemented.
+ * 
+ * @author [NPC]TourGuide BackEnd Team, Cappon Sébastien
+ * @version 1.1
+ */
 public class InternalUsersInitializer {
 	private static final Logger logger = LoggerFactory.getLogger(InternalUsersInitializer.class);
-	
+
 	/**
 	 * A method that creates users in memory for internal testing.
 	 * 
@@ -28,8 +35,8 @@ public class InternalUsersInitializer {
 	 */
 	public Map<String, User> initializeInternalUsers() {
 		Map<String, User> internalUserMap = new HashMap<>();
-		
-		IntStream.range(0, InternalUsersQuantity.getInternalUserNumber()).forEach(i -> {
+
+		IntStream.range(0, InternalUsersQuantity.getInternalUserQuantity()).forEach(i -> {
 			String userName = "internalUser" + i;
 			String phone = "000";
 			String email = userName + "@tourGuide.com";
@@ -38,8 +45,8 @@ public class InternalUsersInitializer {
 
 			internalUserMap.put(userName, user);
 		});
-		logger.debug("Created " + InternalUsersQuantity.getInternalUserNumber() + " internal test users.");
-		
+		logger.debug("Created " + InternalUsersQuantity.getInternalUserQuantity() + " internal test users.");
+
 		return internalUserMap;
 	}
 
@@ -51,19 +58,9 @@ public class InternalUsersInitializer {
 	 */
 	public void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {
-			user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
+			user.addVisitedLocation(new VisitedLocation(user.getUserId(),
+					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
 		});
-	}
-
-	/**
-	 * A method that generate random longitude between -180 and 180.
-	 * 
-	 * @return A <code>double</code> which is longitude.
-	 */
-	public double generateRandomLongitude() {
-		double leftLimit = -180;
-		double rightLimit = 180;
-		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 
 	/**
@@ -74,6 +71,17 @@ public class InternalUsersInitializer {
 	public double generateRandomLatitude() {
 		double leftLimit = -85.05112878;
 		double rightLimit = 85.05112878;
+		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
+	}
+	
+	/**
+	 * A method that generate random longitude between -180 and 180.
+	 * 
+	 * @return A <code>double</code> which is longitude.
+	 */
+	public double generateRandomLongitude() {
+		double leftLimit = -180;
+		double rightLimit = 180;
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 

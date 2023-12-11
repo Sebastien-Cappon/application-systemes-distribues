@@ -2,20 +2,29 @@ package com.openclassrooms.tourguide.model;
 
 /**
  * A model class which creates the POJO (Plain Old Java Object)
- * <code>UserPreferences</code>. It contains getters and setters.
+ * <code>Preferences</code>. It contains getters and setters, as well as an
+ * override <code>toSring()</code> method for display in the console.
  *
- * @author [NPC]TourGuide BackEnd Team
- * @version 1.0
+ * @author [NPC]TourGuide BackEnd Team, Sébastien Cappon
+ * @version 1.1
  */
 public class Preferences {
 	private int attractionProximity = Integer.MAX_VALUE;
 	private int tripDuration = 1;
 	private int ticketQuantity = 1;
-	private int numberOfAdults = 1;
-	private int numberOfChildren = 0;
+	private int adultQuantity = 1;
+	private int childQuantity = 0;
 
 	public Preferences() {
 
+	}
+	
+	public Preferences(int attractionProximity, int tripDuration, int ticketQuantity, int adultQuantity, int childQuantity) {
+		this.attractionProximity = attractionProximity;
+		this.tripDuration = tripDuration;
+		this.ticketQuantity = ticketQuantity;
+		this.adultQuantity = adultQuantity;
+		this.childQuantity = childQuantity;
 	}
 
 	public int getAttractionProximity() {
@@ -42,25 +51,25 @@ public class Preferences {
 		this.ticketQuantity = ticketQuantity;
 	}
 
-	public int getNumberOfAdults() {
-		return numberOfAdults;
+	public int getAdultQuantity() {
+		return adultQuantity;
 	}
 
-	public void setNumberOfAdults(int numberOfAdults) {
-		this.numberOfAdults = numberOfAdults;
+	public void setAdultQuantity(int adultQuantity) {
+		this.adultQuantity = adultQuantity;
 	}
 
-	public int getNumberOfChildren() {
-		return numberOfChildren;
+	public int getChildQuantity() {
+		return childQuantity;
 	}
 
-	public void setNumberOfChildren(int numberOfChildren) {
-		this.numberOfChildren = numberOfChildren;
+	public void setChildQuantity(int childQuantity) {
+		this.childQuantity = childQuantity;
 	}
 
 	@Override
 	public String toString() {
 		return "[" + attractionProximity + "]" + "[" + tripDuration + "]" + "[" + ticketQuantity + "]" + "["
-				+ numberOfAdults + "]" + "[" + numberOfChildren + "]";
+				+ adultQuantity + "]" + "[" + childQuantity + "]";
 	}
 }

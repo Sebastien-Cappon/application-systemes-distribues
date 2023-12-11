@@ -2,8 +2,8 @@ package com.openclassrooms.tourguide.constant;
 
 /**
  * A class that initializes a constant that defines the number of users to be
- * simulated in the internal tests. This class is only used in the
- * <code>tourGuideService</code>, for testing purpose with internal users.
+ * internally simulated. This class is only used in the
+ * <code>tourGuideService</code>.
  * 
  * @defaultValue 100,000 for testing.
  * 
@@ -11,13 +11,13 @@ package com.openclassrooms.tourguide.constant;
  * @version 1.0
  */
 public class InternalUsersQuantity {
-	private static int internalUserNumber = 100;
+	private static int internalUserQuantity = 100;
 
-	public static void setInternalUserNumber(int internalUserNumber) {
-		InternalUsersQuantity.internalUserNumber = internalUserNumber;
+	public static void setInternalUserQuantity(int internalUserQuantity) {
+		InternalUsersQuantity.internalUserQuantity = internalUserQuantity;
 	}
 
-	public static int getInternalUserNumber() {
-		return internalUserNumber;
+	public static int getInternalUserQuantity() {
+		return internalUserQuantity;
 	}
 }

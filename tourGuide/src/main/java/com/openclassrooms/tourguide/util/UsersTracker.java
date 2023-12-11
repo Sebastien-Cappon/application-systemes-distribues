@@ -9,9 +9,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.openclassrooms.tourguide.model.User;
-import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.service.ITourGuideService;
 
 /**
  * A class that manages a tracker that follows users to record their positions
@@ -21,17 +22,21 @@ import com.openclassrooms.tourguide.service.TourGuideService;
  * @version 1.0
  */
 public class UsersTracker extends Thread {
-	public static final AtomicBoolean SLEEPINGTRACKER = new AtomicBoolean();
+	
+	@Autowired
+	private ITourGuideService iTourGuideService; 
+	
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+	
 	private static final Logger logger = LoggerFactory.getLogger(UsersTracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	
-	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final TourGuideService tourGuideService;
-	
 	private boolean stop = false;
 
-	public UsersTracker(TourGuideService tourGuideService) {
-		this.tourGuideService = tourGuideService;
+	public static final AtomicBoolean SLEEPINGTRACKER = new AtomicBoolean();
+	
+	public UsersTracker(ITourGuideService iTourGuideService) {
+		this.iTourGuideService = iTourGuideService;
 		executorService.submit(this);
 	}
 
@@ -50,10 +55,10 @@ public class UsersTracker extends Thread {
 				break;
 			}
 
-			List<User> users = tourGuideService.getAllUsers();
+			List<User> users = iTourGuideService.getUserList();
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
-			users.forEach(u -> tourGuideService.trackUserLocation(u));
+			users.forEach(u -> iTourGuideService.trackUserLocation(u));
 			stopWatch.stop();
 			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 			stopWatch.reset();
