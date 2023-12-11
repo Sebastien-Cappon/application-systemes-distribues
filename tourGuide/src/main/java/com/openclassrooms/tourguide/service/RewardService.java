@@ -46,14 +46,14 @@ public class RewardService implements IRewardService {
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
-	
+
 	@Override
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
 	}
 
 	/**
-	 * A method that calculates the distance, in nautical mile, between to
+	 * A method that calculates the distance, in nautical miles, between to
 	 * <code>Location</code>s passed as parameters
 	 * 
 	 * @return A <code>Double</code> that represents the distance.
@@ -65,13 +65,15 @@ public class RewardService implements IRewardService {
 		double secondLocationLatitude = Math.toRadians(secondLocation.latitude);
 		double secondLocationLongitude = Math.toRadians(secondLocation.longitude);
 
-		double angle = Math.acos(Math.sin(firstLocationLatitude) * Math.sin(secondLocationLatitude) + Math.cos(firstLocationLatitude) * Math.cos(secondLocationLatitude) * Math.cos(firstLocationLongitude - secondLocationLongitude));
+		double angle = Math.acos(
+				Math.sin(firstLocationLatitude)* Math.sin(secondLocationLatitude) + Math.cos(firstLocationLatitude) * Math.cos(secondLocationLatitude) * Math.cos(firstLocationLongitude - secondLocationLongitude));
 
 		double nauticalMiles = 60 * Math.toDegrees(angle);
 		double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
+
 		return statuteMiles;
 	}
-	
+
 	/**
 	 * A method that assigns reward points to a <code>User</code> for a given
 	 * <code>Attraction</code>
@@ -104,7 +106,8 @@ public class RewardService implements IRewardService {
 	@Override
 	public User manageUserRewardList(User user) {
 		List<Attraction> attractions = gpsUtil.getAttractions();
-		CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(user.getVisitedLocationList());
+		CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(
+				user.getVisitedLocationList());
 
 		for (VisitedLocation visitedLocation : userVisitedLocations) {
 			for (Attraction attraction : attractions) {
@@ -118,14 +121,14 @@ public class RewardService implements IRewardService {
 
 		return user;
 	}
-	
+
 	/**
-	 * A method that allows the <code>calculateRewards()</code> method to be
+	 * A method that allows the <code>manageUserRewardList()</code> method to be
 	 * executed asynchronously on a list of users in order to improve the
 	 * application's performance.
 	 * 
+	 * @throws InterruptedException
 	 * @return A <code>User</code> list.
-	 * @throws InterruptedException 
 	 */
 	public List<User> manageEachUserRewardList(List<User> users) throws InterruptedException {
 		List<User> usersList = new ArrayList<>();

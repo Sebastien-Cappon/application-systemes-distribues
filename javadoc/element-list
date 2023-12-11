@@ -2,9 +2,8 @@ com.openclassrooms.tourguide
 com.openclassrooms.tourguide.config
 com.openclassrooms.tourguide.constant
 com.openclassrooms.tourguide.controller
-com.openclassrooms.tourguide.helper
+com.openclassrooms.tourguide.dto
 com.openclassrooms.tourguide.logger
-com.openclassrooms.tourguide.module
+com.openclassrooms.tourguide.model
 com.openclassrooms.tourguide.service
-com.openclassrooms.tourguide.tracker
-com.openclassrooms.tourguide.user
+com.openclassrooms.tourguide.util

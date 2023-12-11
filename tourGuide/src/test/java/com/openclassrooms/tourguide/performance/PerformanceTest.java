@@ -22,45 +22,44 @@ import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 
 public class PerformanceTest {
-	
+
 	private GpsUtil gpsUtil = new GpsUtil();
 	private RewardService rewardsService = new RewardService(gpsUtil, new RewardCentral());
 	private StopWatch stopWatch = new StopWatch();
-	
+
 	@BeforeEach
 	public void setupTests() {
-		InternalUsersQuantity.setInternalUserQuantity(100);
+		InternalUsersQuantity.setInternalUserQuantity(100000);
 	}
-	
+
 	@Test
 	public void highVolumeTrackLocation() throws InterruptedException {
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
+
 		List<User> allUsers = new ArrayList<>();
 		allUsers = tourGuideService.getUserList();
 
 		stopWatch.start();
 			tourGuideService.trackEachUserLocation(allUsers);
 		stopWatch.stop();
-		
+
 		tourGuideService.tracker.stopTracking();
 		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 	}
 
-	
 	@Test
 	public void highVolumeGetRewards() throws InterruptedException {
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
+
 		stopWatch.start();
 			Attraction attraction = gpsUtil.getAttractions().get(0);
 			List<User> userList = new ArrayList<>();
-			
+	
 			userList = tourGuideService.getUserList();
 			userList.forEach(user -> user.addVisitedLocation(new VisitedLocation(user.getUserId(), attraction, new Date())));
 			userList = rewardsService.manageEachUserRewardList(userList);
-			
+	
 			for (User user : userList) {
 				assertTrue(user.getUserRewardList().size() > 0);
 			}

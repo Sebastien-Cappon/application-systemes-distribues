@@ -27,19 +27,19 @@ public class TourGuideServiceIT {
 
 	private GpsUtil gpsUtil = new GpsUtil();
 	private IRewardService iRewardService = new RewardService(gpsUtil, new RewardCentral());
-	
+
 	@BeforeEach
 	public void setupTests() {
-		InternalUsersQuantity.setInternalUserQuantity(0);
+		InternalUsersQuantity.setInternalUserQuantity(100);
 	}
-	
+
 	@Test
 	public void getUserLocation() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = iTourGuideService.trackUserLocation(user);
-		
+
 		iTourGuideService.getTracker().stopTracking();
 		assertTrue(visitedLocation.userId.equals(user.getUserId()));
 	}
@@ -47,7 +47,7 @@ public class TourGuideServiceIT {
 	@Test
 	public void addUser() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
@@ -65,7 +65,7 @@ public class TourGuideServiceIT {
 	@Test
 	public void getAllUsers() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
@@ -82,7 +82,7 @@ public class TourGuideServiceIT {
 	@Test
 	public void trackUser() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = iTourGuideService.trackUserLocation(user);
 
@@ -94,7 +94,7 @@ public class TourGuideServiceIT {
 	@Test
 	public void getNearbyAttractions() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = iTourGuideService.trackUserLocation(user);
 		List<Attraction> nearbyAttractions = iTourGuideService.getNearbyAttractionList(visitedLocation);
@@ -107,7 +107,7 @@ public class TourGuideServiceIT {
 	@Test
 	public void getTripDeals() {
 		ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		List<Provider> providers = iTourGuideService.getTripDealList(user);
 

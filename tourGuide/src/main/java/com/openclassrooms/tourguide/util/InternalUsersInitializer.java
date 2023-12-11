@@ -31,7 +31,7 @@ public class InternalUsersInitializer {
 	/**
 	 * A method that creates users in memory for internal testing.
 	 * 
-	 * @return <code>void</code>.
+	 * @return A <code>User Map</code> wich keys are users' name.
 	 */
 	public Map<String, User> initializeInternalUsers() {
 		Map<String, User> internalUserMap = new HashMap<>();
@@ -71,9 +71,10 @@ public class InternalUsersInitializer {
 	public double generateRandomLatitude() {
 		double leftLimit = -85.05112878;
 		double rightLimit = 85.05112878;
+
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
-	
+
 	/**
 	 * A method that generate random longitude between -180 and 180.
 	 * 
@@ -82,6 +83,7 @@ public class InternalUsersInitializer {
 	public double generateRandomLongitude() {
 		double leftLimit = -180;
 		double rightLimit = 180;
+
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 

@@ -63,7 +63,7 @@ public class TourGuideController {
 	 * <code>VistedLocation</code> for the user whose name is the one passed in
 	 * parameter.
 	 * 
-	 * @singularity VisitedLocation came from GpsUtil external module.
+	 * @singularity VisitedLocation come from GpsUtil external module.
 	 * 
 	 * @return A <code>VistedLocation</code>.
 	 */
@@ -73,10 +73,10 @@ public class TourGuideController {
 	}
 
 	/**
-	 * A <code>GetMapping</code> method on the <code>/getNearbyAttractions</code> URI with an
-	 * user name as <code>RequestParam</code>. Get the closest five tourist
-	 * attractions to the user no matter how far away they are. It returns a new
-	 * JSON object that contains the name and the lat/long of the tourist
+	 * A <code>GetMapping</code> method on the <code>/getNearbyAttractions</code>
+	 * URI with an user name as <code>RequestParam</code>. Get the closest five
+	 * tourist attractions to the user no matter how far away they are. It returns a
+	 * new JSON object that contains the name and the lat/long of the tourist
 	 * attraction, the user's location lat/long, the distance in miles between the
 	 * user's location and each of the attractions. and the reward points for
 	 * visiting each Attraction.
@@ -95,11 +95,11 @@ public class TourGuideController {
 	/**
 	 * A <code>GetMapping</code> method on the <code>/getRewards</code> URI with an
 	 * user name as <code>RequestParam</code>. It calls the
-	 * <code>iTourGuideService</code> methods <code>getUserRewards(User user)</code>
-	 * and returns a list of <code>UserReward</code> for the user whose name is the
-	 * one passed in parameter.
+	 * <code>iTourGuideService</code> methods
+	 * <code>getUserRewardList(User user)</code> and returns a list of
+	 * <code>Reward</code> for the user whose name is the one passed in parameter.
 	 * 
-	 * @return A <code>VistedLocation</code>.
+	 * @return A <code>Reward</code> list.
 	 */
 	@GetMapping("/getRewards")
 	public List<Reward> getUserRewardList(@RequestParam String userName) {
@@ -107,15 +107,15 @@ public class TourGuideController {
 	}
 
 	/**
-	 * A <code>GetMapping</code> method on the <code>/getTripDeals</code> URI
-	 * with an user name as <code>RequestParam</code>. It calls the
-	 * <code>iTourGuideService</code> methods <code>getTripDeals(User user)</code>
-	 * and returns a list of <code>Provider</code> for the user whose name is the
-	 * one passed in parameter.
+	 * A <code>GetMapping</code> method on the <code>/getTripDeals</code> URI with
+	 * an user name as <code>RequestParam</code>. It calls the
+	 * <code>iTourGuideService</code> methods <code>getTripDealList(User user)</code>
+	 * and returns a list of <code>Provider</code> for the user whose name is the one
+	 * passed in parameter.
 	 * 
-	 * @singularity Provider came from TripPricer external module.
+	 * @singularity Provider come from TripPricer external module.
 	 * 
-	 * @return A <code>VistedLocation</code>.
+	 * @return A <code>Provider</code> list.
 	 */
 	@GetMapping("/getTripDeals")
 	public List<Provider> getTripDealList(@RequestParam String userName) {

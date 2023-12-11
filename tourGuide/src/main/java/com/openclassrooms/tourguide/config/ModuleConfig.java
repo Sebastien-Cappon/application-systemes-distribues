@@ -7,12 +7,12 @@ import gpsUtil.GpsUtil;
 import rewardCentral.RewardCentral;
 
 /**
- * A configuration class that contains 3 Beans for 2 of the modules and a
- * Service used by the application.
+ * A configuration class that contains Beans for the modules. The original third
+ * bean is no longer useful.
  *
- * @author [NPC]TourGuide BackEnd Team
+ * @author [NPC]TourGuide BackEnd Team, Sébastien Cappon
  * 
- * @version 1.0
+ * @version 1.1
  */
 @Configuration
 public class ModuleConfig {
@@ -21,7 +21,7 @@ public class ModuleConfig {
 	GpsUtil getGpsUtil() {
 		return new GpsUtil();
 	}
-	
+
 	@Bean
 	RewardCentral getRewardCentral() {
 		return new RewardCentral();

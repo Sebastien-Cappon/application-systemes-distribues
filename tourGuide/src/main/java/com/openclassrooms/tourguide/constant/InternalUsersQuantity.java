@@ -5,7 +5,7 @@ package com.openclassrooms.tourguide.constant;
  * internally simulated. This class is only used in the
  * <code>tourGuideService</code>.
  * 
- * @defaultValue 100,000 for testing.
+ * @defaultValue 100 for testing.
  * 
  * @author [NPC]TourGuide BackEnd Team
  * @version 1.0

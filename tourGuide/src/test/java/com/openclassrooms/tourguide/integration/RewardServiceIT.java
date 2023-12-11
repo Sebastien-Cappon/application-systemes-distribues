@@ -27,18 +27,18 @@ public class RewardServiceIT {
 	private GpsUtil gpsUtil = new GpsUtil();
 	private IRewardService iRewardService = new RewardService(gpsUtil, new RewardCentral());
 	private ITourGuideService iTourGuideService = new TourGuideService(gpsUtil, iRewardService);
-	
+
 	@Test
 	public void userGetRewards() {
 		InternalUsersQuantity.setInternalUserQuantity(0);
-		
+
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		
+
 		user.addVisitedLocation(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		iTourGuideService.trackUserLocation(user);
 		List<Reward> userRewards = user.getUserRewardList();
-		
+
 		iTourGuideService.getTracker().stopTracking();
 		assertTrue(userRewards.size() == 1);
 	}
@@ -54,10 +54,10 @@ public class RewardServiceIT {
 		iRewardService.setProximityBuffer(Integer.MAX_VALUE);
 		InternalUsersQuantity.setInternalUserQuantity(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, iRewardService);
-		
+
 		iRewardService.manageUserRewardList(tourGuideService.getUserList().get(0));
 		List<Reward> userRewards = tourGuideService.getUserRewardList(tourGuideService.getUserList().get(0));
-		
+
 		tourGuideService.tracker.stopTracking();
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
 	}

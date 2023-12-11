@@ -40,10 +40,10 @@ import tripPricer.TripPricer;
  */
 @Service
 public class TourGuideService implements ITourGuideService {
-	
+
 	@Autowired
 	private IRewardService iRewardService;
-	
+
 	private ExecutorService executorService = Executors.newFixedThreadPool(50);
 
 	private static final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
@@ -52,10 +52,10 @@ public class TourGuideService implements ITourGuideService {
 	private final GpsUtil gpsUtil;
 	private final TripPricer tripPricer = new TripPricer();
 	private final InternalUsersInitializer internalUserList = new InternalUsersInitializer();
-	
+
 	private Map<String, User> internalUserMap;
 	private boolean testMode = true;
-	
+
 	public final UsersTracker tracker;
 
 	public TourGuideService(GpsUtil gpsUtil, IRewardService iRewardService) {
@@ -86,7 +86,7 @@ public class TourGuideService implements ITourGuideService {
 	 * 
 	 * @warning <code>internalUserMap</code> is initialized below.
 	 * 
-	 * @return A <code>User</code>.
+	 * @return A <code>User</code> list.
 	 */
 	@Override
 	public List<User> getUserList() {
@@ -94,7 +94,7 @@ public class TourGuideService implements ITourGuideService {
 	}
 
 	/**
-	 * A <code>GET</code> method that returns a <code>User</code> whose username is
+	 * A <code>GET</code> method that returns a <code>User</code> whose user name is
 	 * passed as parameter after calling the getter of the
 	 * <code>Map<String, User></code>
 	 * 
@@ -103,8 +103,8 @@ public class TourGuideService implements ITourGuideService {
 	 * @return A <code>User</code>.
 	 */
 	@Override
-	public User getUserByName(String username) {
-		return internalUserMap.get(username);
+	public User getUserByName(String userName) {
+		return internalUserMap.get(userName);
 	}
 
 	/**
@@ -113,12 +113,11 @@ public class TourGuideService implements ITourGuideService {
 	 * some locations. Otherwise, he returns the actual location. calling the
 	 * <code>VisitedLocations</code> list getter of <code>User</code> class.
 	 * 
-	 * @return A <code>UserReward</code> list.
+	 * @return A <code>VisitedLocation</code>.
 	 */
 	@Override
 	public VisitedLocation getUserLocation(User user) {
-		VisitedLocation visitedLocation = (user.getVisitedLocationList().size() > 0) ? user.getLastVisitedLocation()
-				: trackUserLocation(user);
+		VisitedLocation visitedLocation = (user.getVisitedLocationList().size() > 0) ? user.getLastVisitedLocation() : trackUserLocation(user);
 		return visitedLocation;
 	}
 
@@ -127,7 +126,7 @@ public class TourGuideService implements ITourGuideService {
 	 * the five nearest attractions to <code>VisitedLocation</code> passed as
 	 * parameter
 	 * 
-	 * @return A <code>Attraction</code> list.
+	 * @return An <code>Attraction</code> list.
 	 */
 	@Override
 	public List<Attraction> getNearbyAttractionList(VisitedLocation visitedLocation) {
@@ -147,11 +146,11 @@ public class TourGuideService implements ITourGuideService {
 	}
 
 	/**
-	 * A <code>GET</code> method that returns a <code>UserReward</code> list for the
+	 * A <code>GET</code> method that returns a <code>Reward</code> list for the
 	 * <code>User</code> passed as a parameter after calling the
 	 * <code>UserReward</code> getter of <code>User</code> class.
 	 * 
-	 * @return A <code>UserReward</code> list.
+	 * @return A <code>Reward</code> list.
 	 */
 	@Override
 	public List<Reward> getUserRewardList(User user) {
@@ -169,22 +168,26 @@ public class TourGuideService implements ITourGuideService {
 	public List<Provider> getTripDealList(User user) {
 		int cumulatativeRewardPoints = user.getUserRewardList().stream().mapToInt(i -> i.getRewardPoints()).sum();
 
-		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
-				user.getUserPreferences().getAdultQuantity(), user.getUserPreferences().getChildQuantity(),
-				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+		List<Provider> providers = tripPricer.getPrice(
+				tripPricerApiKey,
+				user.getUserId(),
+				user.getUserPreferences().getAdultQuantity(),
+				user.getUserPreferences().getChildQuantity(),
+				user.getUserPreferences().getTripDuration(),
+				cumulatativeRewardPoints
+			);
 		user.setTripDealList(providers);
 
 		return providers;
 	}
 
 	/**
-	 * A <code>POST</code> method that returns a <code>User</code> passed in
-	 * parameter and put into the <code>internalUserMap</code> declared below, if
-	 * and only if the <code>internalUserMap</code> doesn't contain it.
+	 * A method that puts an user into the <code>internalUserMap</code> declared
+	 * below, if and only if the <code>internalUserMap</code> doesn't contain it.
 	 * 
 	 * @warning <code>internalUserMap</code> is initialized below.
 	 * 
-	 * @return A <code>User</code>.
+	 * @return <code>void</code>.
 	 */
 	@Override
 	public void addUser(User user) {
@@ -211,11 +214,11 @@ public class TourGuideService implements ITourGuideService {
 
 	/**
 	 * A method that allows the <code>trackUserLocation()</code> method to be
-	 * executed asynchronously on a list of users passed as parameter in order to improve the
-	 * application's performance.
+	 * executed asynchronously on a list of users passed as parameter in order to
+	 * improve the application's performance.
 	 * 
+	 * @throws InterruptedException
 	 * @return A <code>UUID</code>, <code>VisitedLocation</code> map.
-	 * @throws InterruptedException 
 	 */
 	public Map<UUID, VisitedLocation> trackEachUserLocation(List<User> users) throws InterruptedException {
 		Map<UUID, VisitedLocation> visitedLocationMap = new HashMap<>();
@@ -231,14 +234,14 @@ public class TourGuideService implements ITourGuideService {
 
 		return visitedLocationMap;
 	}
-	
+
 	/**
 	 * A method that formats the attractions in a list of attractions passed in
 	 * parameter so that it returns the name, latitude and longitude of each
 	 * attraction, as well as the user's position, the distance between the two and
 	 * the points that the attraction concerned could bring back.
 	 * 
-	 * @return A <code>Attraction</code> list.
+	 * @return An <code>Attraction</code> list.
 	 */
 	@Override
 	public List<AttractionNearUserDto> formatNearbyAttractionList(User user, VisitedLocation visitedLocation, List<Attraction> nearbyAttractions) {
@@ -276,6 +279,4 @@ public class TourGuideService implements ITourGuideService {
 		});
 	}
 
-
-	
 }

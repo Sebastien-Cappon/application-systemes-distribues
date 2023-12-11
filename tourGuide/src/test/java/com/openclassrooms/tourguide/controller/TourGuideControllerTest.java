@@ -17,54 +17,54 @@ import com.openclassrooms.tourguide.service.ITourGuideService;
 public class TourGuideControllerTest {
 
 	@Autowired
-	MockMvc mockMvc;
-	
+	private MockMvc mockMvc;
+
 	@MockBean
-	ITourGuideService iTourGuideService;
+	private ITourGuideService iTourGuideService;
 
 	@Test
 	public void getHomePage_shouldReturnOk() throws Exception {
 		mockMvc.perform(get("/")
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-		    .andExpect(content().string("Greetings from TourGuide!"));
+			.andExpect(content().string("Greetings from TourGuide!"));
 	}
-	
+
 	@Test
 	public void getUser_shouldReturnOk() throws Exception {
-			mockMvc.perform(get("/user")
+		mockMvc.perform(get("/user")
 				.accept(MediaType.APPLICATION_JSON)
 				.param("userName", "internalUser0"))
 			.andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getLocation_shouldReturnOk() throws Exception {
-			mockMvc.perform(get("/getLocation")
+		mockMvc.perform(get("/getLocation")
 				.accept(MediaType.APPLICATION_JSON)
 				.param("userName", "internalUser0"))
 			.andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getNearbyAttractionList_shouldReturnOk() throws Exception {
 		mockMvc.perform(get("/getNearbyAttractions")
 				.accept(MediaType.APPLICATION_JSON)
 				.param("userName", "internalUser0"))
-		.andExpect(status().isOk());
+			.andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getUserRewardList_shouldReturnOk() throws Exception {
 		mockMvc.perform(get("/getRewards")
 				.accept(MediaType.APPLICATION_JSON)
 				.param("userName", "internalUser0"))
-		.andExpect(status().isOk());
+			.andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getTripDealList_shouldReturnOk() throws Exception {
-			mockMvc.perform(get("/getTripDeals")
+		mockMvc.perform(get("/getTripDeals")
 				.accept(MediaType.APPLICATION_JSON)
 				.param("userName", "internalUser0"))
 			.andExpect(status().isOk());

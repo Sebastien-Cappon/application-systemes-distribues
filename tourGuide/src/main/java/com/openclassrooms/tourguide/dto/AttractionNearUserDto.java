@@ -14,7 +14,7 @@ public class AttractionNearUserDto {
 	private UserLocationDto userLocation;
 	private Double distanceBetween;
 	private int rewardPoints;
-	
+
 	public AttractionNearUserDto(NearbyAttractionDto nearbyAttraction, UserLocationDto userLocation, Double distanceBetween, int rewardPoints) {
 		this.nearbyAttraction = nearbyAttraction;
 		this.userLocation = userLocation;

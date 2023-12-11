@@ -18,8 +18,8 @@ import com.openclassrooms.tourguide.service.ITourGuideService;
  * A class that manages a tracker that follows users to record their positions
  * and update rewards every N minutes.
  * 
- * @author [NPC]TourGuide BackEnd Team
- * @version 1.0
+ * @author [NPC]TourGuide BackEnd Team, Cappon Sébastien
+ * @version 1.1
  */
 public class UsersTracker extends Thread {
 	

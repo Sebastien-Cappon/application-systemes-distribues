@@ -8,6 +8,6 @@ class TourguideApplicationTests {
 
 	@Test
 	void contextLoads() {
-		
+
 	}
 }
