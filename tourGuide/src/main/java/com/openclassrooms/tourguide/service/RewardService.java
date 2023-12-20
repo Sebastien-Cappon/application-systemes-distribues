@@ -106,8 +106,7 @@ public class RewardService implements IRewardService {
 	@Override
 	public User manageUserRewardList(User user) {
 		List<Attraction> attractions = gpsUtil.getAttractions();
-		CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(
-				user.getVisitedLocationList());
+		CopyOnWriteArrayList<VisitedLocation> userVisitedLocations = new CopyOnWriteArrayList<>(user.getVisitedLocationList());
 
 		for (VisitedLocation visitedLocation : userVisitedLocations) {
 			for (Attraction attraction : attractions) {
